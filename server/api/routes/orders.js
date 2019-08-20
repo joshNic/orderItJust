@@ -91,11 +91,27 @@ router.get('/:orderId', (req, res, next) => {
 });
 
 router.delete('/:orderId', (req, res, next) => {
-  const id = req.params.orderId;
-  res.status(200).json({
-    message: 'Order deleted',
-    orderId: id
-  });
+  Order.remove({ _id: req.params.orderId })
+    .exec()
+    .then(order => {
+      if (!order) {
+        return res.status(404).json({
+          message: 'Order not found'
+        });
+      }
+      res.status(200).json({
+        message: 'Order deleted',
+        request: {
+          type: 'POST',
+          url: 'http://localhost:3000/orders'
+        }
+      });
+    })
+    .catch(err => {
+      res.status(500).json({
+        error: err
+      });
+    });
 });
 
 module.exports = router;
