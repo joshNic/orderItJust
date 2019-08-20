@@ -9,7 +9,9 @@ const ordersRoutes = require('./api/routes/orders');
 const userRoutes = require('./api/routes/users');
 
 mongoose.connect(
-  'mongodb+srv://Mugisha:5y+2X=90@cluster0-gmoxm.mongodb.net/taxiapp',
+  'mongodb+srv://Mugisha:' +
+    process.env.MONGO_ATLAS_PW +
+    '@cluster0-gmoxm.mongodb.net/taxiapp',
   { useCreateIndex: true, useNewUrlParser: true }
 );
 
