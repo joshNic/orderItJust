@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import './Auth.css';
+import AuthContext from '../context/auth-context';
 
 export default class Auth extends Component {
   state = {
     isLogin: true
   };
+
+  static contextType = AuthContext;
+
   constructor(props) {
     super(props);
     this.emailEl = React.createRef();
@@ -63,6 +67,10 @@ export default class Auth extends Component {
       })
       .then(resData => {
         console.log(resData);
+        if (resData.data.login.token) {
+          const { token, userId } = resData.data.login;
+          this.context.login(token, userId);
+        }
       })
       .catch(err => {
         console.log(err);
