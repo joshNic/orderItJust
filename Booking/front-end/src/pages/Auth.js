@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './Auth.css';
 import AuthContext from '../context/auth-context';
 
-export default class Auth extends Component {
+class AuthPage extends Component {
   state = {
     isLogin: true
   };
@@ -14,41 +14,52 @@ export default class Auth extends Component {
     this.emailEl = React.createRef();
     this.passwordEl = React.createRef();
   }
+
   switchModeHandler = () => {
     this.setState(prevState => {
       return { isLogin: !prevState.isLogin };
     });
   };
-  submitHandler = e => {
-    e.preventDefault();
+
+  submitHandler = event => {
+    event.preventDefault();
     const email = this.emailEl.current.value;
     const password = this.passwordEl.current.value;
-    if (email.length === 0 || password.length === 0) {
+
+    if (email.trim().length === 0 || password.trim().length === 0) {
       return;
     }
 
     let requestBody = {
       query: `
-      query {
-        login(email:"${email}",password:"${password}"){
-          userId
-          token
-          tokenExpiration
+        query Login($email: String!, $password: String!) {
+          login(email: $email, password: $password) {
+            userId
+            token
+            tokenExpiration
+          }
         }
+      `,
+      variables: {
+        email: email,
+        password: password
       }
-      `
     };
 
     if (!this.state.isLogin) {
       requestBody = {
         query: `
-      mutation{
-        createUser(userInput:{email:"${email}",password:"${password}"}){
-          _id
-          email
+          mutation CreateUser($email: String!, $password: String!) {
+            createUser(userInput: {email: $email, password: $password}) {
+              _id
+              email
+            }
+          }
+        `,
+        variables: {
+          email: email,
+          password: password
         }
-      }
-      `
       };
     }
 
@@ -66,10 +77,12 @@ export default class Auth extends Component {
         return res.json();
       })
       .then(resData => {
-        console.log(resData);
         if (resData.data.login.token) {
-          const { token, userId } = resData.data.login;
-          this.context.login(token, userId);
+          this.context.login(
+            resData.data.login.token,
+            resData.data.login.userId,
+            resData.data.login.tokenExpiration
+          );
         }
       })
       .catch(err => {
@@ -89,12 +102,14 @@ export default class Auth extends Component {
           <input type='password' id='password' ref={this.passwordEl} />
         </div>
         <div className='form-actions'>
-          <button type='button' onClick={this.switchModeHandler}>
-            Switch to {this.state.isLogin ? 'SignUp' : 'SignIn'}
-          </button>
           <button type='submit'>Submit</button>
+          <button type='button' onClick={this.switchModeHandler}>
+            Switch to {this.state.isLogin ? 'Signup' : 'Login'}
+          </button>
         </div>
       </form>
     );
   }
 }
+
+export default AuthPage;
