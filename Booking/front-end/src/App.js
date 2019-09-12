@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import './App.css';
-import Auth from './pages/Auth';
-import Events from './pages/Events';
-import Bookings from './pages/Bookings';
+import AuthPage from './pages/Auth';
+import EventsPage from './pages/Events';
+import BookingsPage from './pages/Bookings';
 import MainNavigation from './components/navigation/MainNavigation';
 import AuthContext from './context/auth-context';
 
@@ -39,16 +39,18 @@ class App extends React.Component {
             <MainNavigation />
             <main className='main-content'>
               <Switch>
-                {!this.state.token && <Redirect from='/' to='auth' exact />}
                 {this.state.token && <Redirect from='/' to='/events' exact />}
                 {this.state.token && (
                   <Redirect from='/auth' to='/events' exact />
                 )}
-                {!this.state.token && <Route path='/auth' component={Auth} />}
-                <Route path='/events' component={Events} />
-                {this.state.token && (
-                  <Route path='/bookings' component={Bookings} />
+                {!this.state.token && (
+                  <Route path='/auth' component={AuthPage} />
                 )}
+                <Route path='/events' component={EventsPage} />
+                {this.state.token && (
+                  <Route path='/bookings' component={BookingsPage} />
+                )}
+                {!this.state.token && <Redirect to='/auth' exact />}
               </Switch>
             </main>
           </AuthContext.Provider>
